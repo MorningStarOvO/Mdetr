@@ -2,7 +2,7 @@
     "combine_datasets": ["refexp"],
     "combine_datasets_val": ["refexp"],
     "refexp_dataset_name": "refcoco+",
-    "coco_path": "",
+    "coco_path": "/home/data/yjgroup/qxy/qxy/CM-Att-Erase/data/images",
     "refexp_ann_path": "mdetr_annotations/",
     "epochs": 5,
     "lr_drop": 3

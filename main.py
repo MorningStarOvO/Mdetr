@@ -1,21 +1,31 @@
 # Copyright (c) Aishwarya Kamath & Nicolas Carion. Licensed under the Apache License 2.0. All Rights Reserved
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
-import argparse
+# -------------------- 导入必要的包 -------------------- #
+# ----- 系统操作相关 ----- #
 import datetime
-import json
 import os
-import random
 import time
-from collections import namedtuple
-from copy import deepcopy
-from functools import partial
 from pathlib import Path
 
+# ----- 读取数据相关 ----- #
+import json
+
+# ----- 数据处理相关 ----- #
+import random
+from collections import namedtuple
+from copy import deepcopy
 import numpy as np
+
+# ----- 模型定义相关 ----- #
+from functools import partial
 import torch
 import torch.utils
 from torch.utils.data import ConcatDataset, DataLoader, DistributedSampler
 
+# ----- 命令行操作相关 ----- #
+import argparse
+
+# ----- 自定义的包 ----- #
 import util.dist as dist
 import util.misc as utils
 from datasets import build_dataset, get_coco_api_from_dataset
@@ -27,6 +37,9 @@ from datasets.refexp import RefExpEvaluator
 from engine import evaluate, train_one_epoch
 from models import build_model
 from models.postprocessors import build_postprocessors
+
+# ----- 加上这个后就没报错 ----- #
+os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 
 
 def get_args_parser():
@@ -455,7 +468,12 @@ def main(args):
         if args.resume.startswith("https"):
             checkpoint = torch.hub.load_state_dict_from_url(args.resume, map_location="cpu", check_hash=True)
         else:
+            # 按照 LXMERT 加载模型
             checkpoint = torch.load(args.resume, map_location="cpu")
+            # for key in list(checkpoint.keys()):
+            #     if '.module' in key:
+            #         checkpoint[key.replace('.module', '')] = checkpoint.pop(key)
+
         model_without_ddp.load_state_dict(checkpoint["model"])
         if not args.eval and "optimizer" in checkpoint and "epoch" in checkpoint:
             optimizer.load_state_dict(checkpoint["optimizer"])
